@@ -582,7 +582,8 @@ class IosARView: NSObject, FlutterPlatformView, ARSCNViewDelegate, UIGestureReco
         return Future {promise in
 
             let attachNodeToAnchorOrScene: (SCNNode) -> Void = { node in
-                let targetName = dict_anchor?["cloudanchorid"] as? String ?? dict_anchor?["name"] as? String
+                // anchorCollection is keyed by name, which hosted anchors keep after upload
+                let targetName = dict_anchor?["name"] as? String ?? dict_anchor?["cloudanchorid"] as? String
                 if let targetName = targetName, let _ = dict_anchor?["type"] as? Int {
                     if let anchor = self.anchorCollection[targetName] {
                         while (self.sceneView.node(for: anchor) == nil) {
