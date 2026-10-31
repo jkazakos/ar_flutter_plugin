@@ -335,6 +335,7 @@ class IosARView: NSObject, FlutterPlatformView, ARSCNViewDelegate, UIGestureReco
                 if let name = arguments!["name"] as? String {
                     deleteAnchor(anchorName: name)
                 }
+                result(nil)
                 break
         case "initGeospatialMode":
                 var apiKey: String? = nil

@@ -490,6 +490,7 @@ internal class AndroidARView(
                         anchorName?.let { name ->
                             removeAnchor(name)
                         }
+                        result.success(null)
                     }
 
                     "initGoogleCloudAnchorMode" -> {
@@ -1433,5 +1434,3 @@ internal class AndroidARView(
     }
 
 }
-
-
