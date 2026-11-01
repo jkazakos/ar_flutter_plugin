@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:ar_flutter_plugin/managers/ar_location_manager.dart';
 import 'package:ar_flutter_plugin/managers/ar_session_manager.dart';
@@ -264,8 +263,10 @@ class _ExternalModelManagementWidgetState
 
   Future<void> onPlaneOrPointTapped(
       List<ARHitTestResult> hitTestResults) async {
-    var singleHitTestResult = hitTestResults.firstWhere(
-        (hitTestResult) => hitTestResult.type == ARHitTestResultType.plane);
+    var singleHitTestResult = hitTestResults
+        .where(
+            (hitTestResult) => hitTestResult.type == ARHitTestResultType.plane)
+        .firstOrNull;
     if (singleHitTestResult != null) {
       var newAnchor = ARPlaneAnchor(
           transformation: singleHitTestResult.worldTransform, ttl: 2);
@@ -345,12 +346,13 @@ class _ExternalModelManagementWidgetState
     //});
 
     // Get anchors within a radius of 100m of the current device's location
-    if (this.arLocationManager!.currentLocation != null) {
+    final currentLocation = this.arLocationManager!.currentLocation;
+    if (currentLocation != null) {
       firebaseManager.downloadAnchorsByLocation((snapshot) {
         final cloudAnchorId = snapshot.get("cloudanchorid");
         anchorsInDownloadProgress[cloudAnchorId] = snapshot.data() as Map<String, dynamic>;
         arAnchorManager!.downloadAnchor(cloudAnchorId);
-      }, this.arLocationManager!.currentLocation, 0.1);
+      }, currentLocation, 0.1);
       setState(() {
         readyToDownload = false;
       });

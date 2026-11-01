@@ -45,7 +45,7 @@ class _DebugOptionsWidgetState extends State<DebugOptionsWidget> {
             alignment: FractionalOffset.bottomRight,
             child: Container(
               width: MediaQuery.of(context).size.width * 0.5,
-              color: Color(0xFFFFFFF).withOpacity(0.5),
+              color: Color(0xFFFFFFF).withValues(alpha: 0.5),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 mainAxisSize: MainAxisSize.min,

@@ -10,9 +10,7 @@ import 'package:ar_flutter_plugin/datatypes/node_types.dart';
 import 'package:ar_flutter_plugin/datatypes/hittest_result_types.dart';
 import 'package:ar_flutter_plugin/models/ar_node.dart';
 import 'package:ar_flutter_plugin/models/ar_hittest_result.dart';
-import 'package:flutter/services.dart';
 import 'package:vector_math/vector_math_64.dart';
-import 'dart:math';
 
 class ObjectsOnPlanesWidget extends StatefulWidget {
   ObjectsOnPlanesWidget({Key? key}) : super(key: key);
@@ -97,8 +95,10 @@ class _ObjectsOnPlanesWidgetState extends State<ObjectsOnPlanesWidget> {
 
   Future<void> onPlaneOrPointTapped(
       List<ARHitTestResult> hitTestResults) async {
-    var singleHitTestResult = hitTestResults.firstWhere(
-        (hitTestResult) => hitTestResult.type == ARHitTestResultType.plane);
+    var singleHitTestResult = hitTestResults
+        .where(
+            (hitTestResult) => hitTestResult.type == ARHitTestResultType.plane)
+        .firstOrNull;
     if (singleHitTestResult != null) {
       var newAnchor =
           ARPlaneAnchor(transformation: singleHitTestResult.worldTransform);

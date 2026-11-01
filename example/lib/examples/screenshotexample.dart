@@ -38,7 +38,7 @@ class _ScreenshotWidgetState extends State<ScreenshotWidget> {
         appBar: AppBar(
           title: const Text('Screenshots'),
         ),
-        body: 
+        body:
         Container(
             child:
           Stack(children: [
@@ -114,8 +114,10 @@ class _ScreenshotWidgetState extends State<ScreenshotWidget> {
 
   Future<void> onPlaneOrPointTapped(
       List<ARHitTestResult> hitTestResults) async {
-    var singleHitTestResult = hitTestResults.firstWhere(
-        (hitTestResult) => hitTestResult.type == ARHitTestResultType.plane);
+    var singleHitTestResult = hitTestResults
+        .where(
+            (hitTestResult) => hitTestResult.type == ARHitTestResultType.plane)
+        .firstOrNull;
     if (singleHitTestResult != null) {
       var newAnchor =
           ARPlaneAnchor(transformation: singleHitTestResult.worldTransform);
@@ -132,7 +134,7 @@ class _ScreenshotWidgetState extends State<ScreenshotWidget> {
             rotation: Vector4(1.0, 0.0, 0.0, 0.0));
         bool? didAddNodeToAnchor =
             await arObjectManager!.addNode(newNode, anchor: newAnchor);
-        
+
         if (didAddNodeToAnchor != null && didAddNodeToAnchor) {
           nodes.add(newNode);
         } else {
