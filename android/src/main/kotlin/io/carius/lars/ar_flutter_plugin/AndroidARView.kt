@@ -1009,7 +1009,7 @@ internal class AndroidARView(
                     )
                         .thenAccept { node ->
                             Log.d(TAG, "searching for " + dict_anchor.toString())
-                            val anchorName: String? = dict_anchor?.get("cloudanchorid") as? String
+                            val anchorName: String? = dict_anchor?.get("name") as? String ?: dict_anchor?.get("cloudanchorid") as? String
                             val anchorType: Int? = dict_anchor?.get("type") as? Int
                             if (anchorName != null && anchorType != null) {
                                 val anchorNode =
@@ -1186,12 +1186,10 @@ internal class AndroidARView(
 
                     modelBuilder.makeNodeFromGlb(viewContext, transformationSystem, objectManagerChannel, enablePans, enableRotation, dict_node["name"] as String, assetFilePath, deserializeTransformation(dict_node["transformation"]))
                         .thenAccept { node ->
-                            val anchorName: String? = dict_anchor?.get("cloudanchorid") as? String
+                            val anchorName: String? = dict_anchor?.get("name") as? String ?: dict_anchor?.get("cloudanchorid") as? String
                             val anchorType: Int? = dict_anchor?.get("type") as? Int
-                            val targetName = if (anchorName != null) anchorName else dict_anchor?.get("name") as? String
-
-                            if (targetName != null && anchorType != null) {
-                                val anchorNode = arSceneView.scene.findByName(targetName) as AnchorNode?
+                            if (anchorName != null && anchorType != null) {
+                                val anchorNode = arSceneView.scene.findByName(anchorName) as AnchorNode?
                                 if (anchorNode != null) {
                                     anchorNode.addChild(node)
                                     completableFutureSuccess.complete(true)
