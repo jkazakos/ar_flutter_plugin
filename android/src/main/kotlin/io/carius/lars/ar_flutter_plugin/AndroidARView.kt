@@ -53,8 +53,7 @@ internal class AndroidARView(
     val activity: Activity,
     context: Context,
     messenger: BinaryMessenger,
-    id: Int,
-    creationParams: Map<String?, Any?>?
+    id: Int
 ) : PlatformView {
     // constants
     private val TAG: String = AndroidARView::class.java.name
@@ -118,7 +117,7 @@ internal class AndroidARView(
                     "getCameraPose" -> {
                         val cameraPose = arSceneView.arFrame?.camera?.displayOrientedPose
                         if (cameraPose != null) {
-                            result.success(serializePose(cameraPose!!))
+                            result.success(serializePose(cameraPose))
                         } else {
                             result.error("Error", "could not get camera pose", null)
                         }
@@ -222,9 +221,9 @@ internal class AndroidARView(
                         }
                         Log.d("GeoAnchor", "AR session: $session")
                         Log.d("GeoAnchor", "Earth object: $earth")
-                        Log.d("GeoAnchor", "Earth tracking state: ${earth?.trackingState}")
+                        Log.d("GeoAnchor", "Earth tracking state: ${earth.trackingState}")
                         Log.d("GeoAnchor", "Earth state: ${earth.earthState}")
-                        Log.d("GeoAnchor", "Earth pose: ${earth?.cameraGeospatialPose}")
+                        Log.d("GeoAnchor", "Earth pose: ${earth.cameraGeospatialPose}")
 
                         // Create a map to send back all the relevant information
                         val resultMap = HashMap<String, String>()
@@ -540,7 +539,7 @@ internal class AndroidARView(
                                     anchorName,
                                     anchorNode!!.anchor,
                                     cloudAnchorUploadedListener(),
-                                    ttl!!
+                                    ttl
                                 )
                             }
                             //Log.d(TAG, "---------------- HOSTING INITIATED ------------------")
@@ -1098,7 +1097,7 @@ internal class AndroidARView(
                         enablePans,
                         enableRotation,
                         dict_node["name"] as String,
-                        assetPath as String,
+                        assetPath,
                         dict_node["transformation"] as ArrayList<Double>
                     ) //
                         .thenAccept { node ->
@@ -1304,14 +1303,13 @@ internal class AndroidARView(
             }
 
             val cameraPose = earth.cameraGeospatialPose
-            if (cameraPose != null) {
-                val currentAltitude = cameraPose.altitude
-                Log.d("GeoAnchor", "Camera WGS84 Altitude: $currentAltitude")
-                Log.d("GeoAnchor", "Requested Anchor Altitude: $altitude")
-                Log.d("GeoAnchor", "Altitude Difference: ${altitude - currentAltitude}")
-            }
+            val currentAltitude = cameraPose.altitude
 
-            earth?.createAnchor(
+            Log.d("GeoAnchor", "Camera WGS84 Altitude: $currentAltitude")
+            Log.d("GeoAnchor", "Requested Anchor Altitude: $altitude")
+            Log.d("GeoAnchor", "Altitude Difference: ${altitude - currentAltitude}")
+
+            earth.createAnchor(
                 latitude,
                 longitude,
                 altitude,
