@@ -30,8 +30,12 @@ class ARSessionManager {
   /// Receives hit results from user taps with tracked planes or feature points
   late ARHitResultHandler onPlaneOrPointTap;
 
-  ARSessionManager(int id, this.buildContext, this.planeDetectionConfig,
-      {this.debug = false}) {
+  ARSessionManager(
+    int id,
+    this.buildContext,
+    this.planeDetectionConfig, {
+    this.debug = false,
+  }) {
     _channel = MethodChannel('arsession_$id');
     _channel.setMethodCallHandler(_platformCallHandler);
     if (debug) {
@@ -42,8 +46,10 @@ class ARSessionManager {
   /// Returns the camera pose in Matrix4 format with respect to the world coordinate system of the [ARView]
   Future<Matrix4?> getCameraPose() async {
     try {
-      final serializedCameraPose =
-          await _channel.invokeMethod<List<dynamic>>('getCameraPose', {});
+      final serializedCameraPose = await _channel.invokeMethod<List<dynamic>>(
+        'getCameraPose',
+        {},
+      );
       return MatrixConverter().fromJson(serializedCameraPose!);
     } catch (e) {
       print('Error caught: ' + e.toString());
@@ -55,45 +61,12 @@ class ARSessionManager {
   Future placeBasedOnScreenCoordinates(double x, double y) async {
     try {
       return await _channel.invokeMethod<List<dynamic>>(
-          'placeBasedOnCoordinates', {"x": x, "y": y});
+        'placeBasedOnCoordinates',
+        {"x": x, "y": y},
+      );
     } catch (e) {
       print('Error caught: ' + e.toString());
       return null;
-    }
-  }
-
-  /// Places anchor in lat-lon-alt coordinates using GeoSpatial API
-  Future placeGeospatial(double? lat, double? lon, double? alt, String name,
-      double qx, double qy, double qz, double qw) async {
-    print(
-        "Calling placeGeospatial with lat: $lat, lon: $lon, alt: $alt, name: $name, qx: $qx, qy: $qy, qz: $qz, qw: $qw");
-    // if (lat ==null || lon == null || alt == null) {
-    //   print("❌ Error: Latitude, Longitude, and Altitude must not be null.");
-    //   return null;
-    // }
-    try {
-      var result = await _channel.invokeMethod('placeGeospatial', {
-        "latitude": lat,
-        "longitude": lon,
-        "altitude": alt,
-        "name": name,
-        "qx": qx,
-        "qy": qy,
-        "qz": qz,
-        "qw": qw,
-      });
-
-      // Debug output
-      print("Raw result from Kotlin: $result");
-
-      var serializedAnchor = ARAnchor.fromJson(result);
-      print('✅ Successfully deserialized anchor: $serializedAnchor');
-
-      return serializedAnchor;
-    } catch (e, stack) {
-      print('❌ Error caught: $e');
-      print('📌 Stack trace: $stack');
-      rethrow;
     }
   }
 
@@ -103,10 +76,10 @@ class ARSessionManager {
       if (anchor.name.isEmpty) {
         throw Exception("Anchor can not be resolved. Anchor name is empty.");
       }
-      final serializedCameraPose =
-          await _channel.invokeMethod<List<dynamic>>('getAnchorPose', {
-        "anchorId": anchor.name,
-      });
+      final serializedCameraPose = await _channel.invokeMethod<List<dynamic>>(
+        'getAnchorPose',
+        {"anchorId": anchor.name},
+      );
       return MatrixConverter().fromJson(serializedCameraPose!);
     } catch (e) {
       print('Error caught: ' + e.toString());
@@ -116,7 +89,9 @@ class ARSessionManager {
 
   /// Returns the distance in meters between @anchor1 and @anchor2.
   Future<double?> getDistanceBetweenAnchors(
-      ARAnchor anchor1, ARAnchor anchor2) async {
+    ARAnchor anchor1,
+    ARAnchor anchor2,
+  ) async {
     var anchor1Pose = await getPose(anchor1);
     var anchor2Pose = await getPose(anchor2);
     var anchor1Translation = anchor1Pose?.getTranslation();
@@ -213,12 +188,15 @@ class ARSessionManager {
 
   /// Displays the [errorMessage] in a snackbar of the parent widget
   onError(String errorMessage) {
-    ScaffoldMessenger.of(buildContext).showSnackBar(SnackBar(
+    ScaffoldMessenger.of(buildContext).showSnackBar(
+      SnackBar(
         content: Text(errorMessage),
         action: SnackBarAction(
-            label: 'HIDE',
-            onPressed:
-                ScaffoldMessenger.of(buildContext).hideCurrentSnackBar)));
+          label: 'HIDE',
+          onPressed: ScaffoldMessenger.of(buildContext).hideCurrentSnackBar,
+        ),
+      ),
+    );
   }
 
   /// Dispose the AR view on the platforms to pause the scenes and disconnect the platform handlers.
@@ -241,21 +219,20 @@ class ARSessionManager {
   /// Queries the current Earth tracking state from the AR session
   Future<Map<String, String>> checkEarthTracking() async {
     try {
-      final Map<dynamic, dynamic>? resultMap =
-          await _channel.invokeMethod('checkEarthTracking');
+      final Map<dynamic, dynamic>? resultMap = await _channel.invokeMethod(
+        'checkEarthTracking',
+      );
 
       if (resultMap == null) {
         throw Exception("No result returned from checkEarthTracking");
       }
 
-      return resultMap
-          .map((key, value) => MapEntry(key.toString(), value.toString()));
+      return resultMap.map(
+        (key, value) => MapEntry(key.toString(), value.toString()),
+      );
     } catch (e) {
       debugPrint("Error checking Earth status: $e");
-      return {
-        "trackingState": "ERROR",
-        "earthState": "ERROR",
-      };
+      return {"trackingState": "ERROR", "earthState": "ERROR"};
     }
   }
 
