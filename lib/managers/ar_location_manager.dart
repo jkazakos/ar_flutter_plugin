@@ -78,11 +78,12 @@ class ARLocationManager {
     // When we reach here, permissions are granted and we can
     // continue accessing the position of the device.
     locationStream =
-        Geolocator.getPositionStream(locationSettings: LocationSettings(accuracy: LocationAccuracy.high))
-            .listen((Position position) {
-      //print(position.latitude.toString() + ', ' + position.longitude.toString());
-      currentLocation = position;
-    });
+        Geolocator.getPositionStream(
+          locationSettings: LocationSettings(accuracy: LocationAccuracy.high),
+        ).listen((Position position) {
+          //print(position.latitude.toString() + ', ' + position.longitude.toString());
+          currentLocation = position;
+        });
 
     return true;
   }
@@ -106,7 +107,7 @@ class ARLocationManager {
   ///
   /// When the location services are not enabled or permissions
   /// are denied the `Future` will return an error.
-  Future<Position> _determinePosition() async {
+  Future<Position> determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
 
