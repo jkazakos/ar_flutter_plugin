@@ -19,6 +19,7 @@ import com.google.ar.sceneform.*
 import com.google.ar.sceneform.math.Vector3
 import com.google.ar.sceneform.ux.*
 import io.carius.lars.ar_flutter_plugin.Serialization.deserializeMatrix4
+import io.carius.lars.ar_flutter_plugin.Serialization.deserializeTransformation
 import io.carius.lars.ar_flutter_plugin.Serialization.serializeAnchor
 import io.carius.lars.ar_flutter_plugin.Serialization.serializeGeospatialAnchor
 import io.carius.lars.ar_flutter_plugin.Serialization.serializeHitResult
@@ -339,14 +340,16 @@ internal class AndroidARView(
 
                     "addNode" -> {
                         val dict_node: HashMap<String, Any>? =
-                            call.arguments as? HashMap<String, Any>
-                        dict_node?.let {
-                            addNode(it).thenAccept { status: Boolean ->
+                            call.arguments<HashMap<String, Any>>()
+                        if (dict_node != null) {
+                            addNode(dict_node).thenAccept { status: Boolean ->
                                 result.success(status)
                             }.exceptionally { throwable ->
                                 result.error("e", throwable.message, throwable.stackTrace)
                                 null
                             }
+                        } else {
+                            result.success(false)
                         }
                     }
 
@@ -1002,7 +1005,7 @@ internal class AndroidARView(
                         enableRotation,
                         dict_node["name"] as String,
                         key,
-                        dict_node["transformation"] as ArrayList<Double>
+                        deserializeTransformation(dict_node["transformation"])
                     )
                         .thenAccept { node ->
                             Log.d(TAG, "searching for " + dict_anchor.toString())
@@ -1051,7 +1054,7 @@ internal class AndroidARView(
                         enableRotation,
                         dict_node["name"] as String,
                         dict_node["uri"] as String,
-                        dict_node["transformation"] as ArrayList<Double>
+                        deserializeTransformation(dict_node["transformation"])
                     )
                         .thenAccept { node ->
                             val anchorName: String? = dict_anchor?.get("name") as? String
@@ -1098,7 +1101,7 @@ internal class AndroidARView(
                         enableRotation,
                         dict_node["name"] as String,
                         assetPath,
-                        dict_node["transformation"] as ArrayList<Double>
+                        deserializeTransformation(dict_node["transformation"])
                     ) //
                         .thenAccept { node ->
                             val anchorName: String? = dict_anchor?.get("name") as? String
@@ -1139,7 +1142,7 @@ internal class AndroidARView(
                     val assetPath = documentsPath + "/app_flutter/" + dict_node["uri"] as String
 
                     // Add object to scene
-                    modelBuilder.makeNodeFromGltf(viewContext, transformationSystem, objectManagerChannel, enablePans, enableRotation, dict_node["name"] as String, assetPath, dict_node["transformation"] as ArrayList<Double>)
+                    modelBuilder.makeNodeFromGltf(viewContext, transformationSystem, objectManagerChannel, enablePans, enableRotation, dict_node["name"] as String, assetPath, deserializeTransformation(dict_node["transformation"]))
                             .thenAccept{node ->
                                 val anchorName: String? = dict_anchor?.get("name") as? String
                                 val anchorType: Int? = dict_anchor?.get("type") as? Int
@@ -1181,7 +1184,7 @@ internal class AndroidARView(
 
                     val assetFilePath = tempFile.absolutePath
 
-                    modelBuilder.makeNodeFromGlb(viewContext, transformationSystem, objectManagerChannel, enablePans, enableRotation, dict_node["name"] as String, assetFilePath, dict_node["transformation"] as ArrayList<Double>)
+                    modelBuilder.makeNodeFromGlb(viewContext, transformationSystem, objectManagerChannel, enablePans, enableRotation, dict_node["name"] as String, assetFilePath, deserializeTransformation(dict_node["transformation"]))
                         .thenAccept { node ->
                             val anchorName: String? = dict_anchor?.get("cloudanchorid") as? String
                             val anchorType: Int? = dict_anchor?.get("type") as? Int

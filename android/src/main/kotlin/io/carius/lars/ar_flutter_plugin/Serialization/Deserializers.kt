@@ -3,6 +3,10 @@ package io.carius.lars.ar_flutter_plugin.Serialization
 import com.google.ar.sceneform.math.Quaternion
 import com.google.ar.sceneform.math.Vector3
 
+fun deserializeTransformation(transformation: Any?): ArrayList<Double> {
+  return (transformation as List<*>).mapTo(ArrayList<Double>()) { (it as Number).toDouble() }
+}
+
 fun deserializeMatrix4(transform: ArrayList<Double>): Triple<Vector3, Vector3, Quaternion> {
   val scale = Vector3()
   val position = Vector3()
@@ -14,8 +18,7 @@ fun deserializeMatrix4(transform: ArrayList<Double>): Triple<Vector3, Vector3, Q
   // https://math.stackexchange.com/questions/237369/given-this-transformation-matrix-how-do-i-decompose-it-into-translation-rotati for a mathematical explanation
   scale.x = Vector3(transform[0].toFloat(), transform[1].toFloat(), transform[2].toFloat()).length()
   scale.y = Vector3(transform[4].toFloat(), transform[5].toFloat(), transform[6].toFloat()).length()
-  scale.z =
-      Vector3(transform[8].toFloat(), transform[9].toFloat(), transform[10].toFloat()).length()
+  scale.z = Vector3(transform[8].toFloat(), transform[9].toFloat(), transform[10].toFloat()).length()
 
   // Get the translation by taking the last column of the transformation matrix
   // See
@@ -28,26 +31,27 @@ fun deserializeMatrix4(transform: ArrayList<Double>): Triple<Vector3, Vector3, Q
   // See
   // https://math.stackexchange.com/questions/237369/given-this-transformation-matrix-how-do-i-decompose-it-into-translation-rotati for a mathematical explanation
   val rowWiseMatrix =
-      floatArrayOf(
-          transform[0].toFloat() / scale.x,
-          transform[4].toFloat() / scale.y,
-          transform[8].toFloat() / scale.z,
-          transform[1].toFloat() / scale.x,
-          transform[5].toFloat() / scale.y,
-          transform[9].toFloat() / scale.z,
-          transform[2].toFloat() / scale.x,
-          transform[6].toFloat() / scale.y,
-          transform[10].toFloat() / scale.z)
+          floatArrayOf(
+                  transform[0].toFloat() / scale.x,
+                  transform[4].toFloat() / scale.y,
+                  transform[8].toFloat() / scale.z,
+                  transform[1].toFloat() / scale.x,
+                  transform[5].toFloat() / scale.y,
+                  transform[9].toFloat() / scale.z,
+                  transform[2].toFloat() / scale.x,
+                  transform[6].toFloat() / scale.y,
+                  transform[10].toFloat() / scale.z
+          )
 
   // Calculate the quaternion from the rotation matrix
   // See https://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/ for
   // a mathematical explanation
   val trace = rowWiseMatrix[0] + rowWiseMatrix[4] + rowWiseMatrix[8]
 
-  var w = 0.0
-  var x = 0.0
-  var y = 0.0
-  var z = 0.0
+  var w: Double
+  var x: Double
+  var y: Double
+  var z: Double
 
   if (trace > 0) {
     val scalefactor = Math.sqrt(trace + 1.0) * 2
